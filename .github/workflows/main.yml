@@ -1,30 +1,22 @@
-# HTML
-# Archive your static HTML project and save it with the build record.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+name: Build Pipeline
 
-trigger:
-- master
+on: [push, pull_request]
 
-pool:
-  name: Azure Pipelines
-  vmimage: windows-2019
-  
-steps:
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      # delete temporary git files
-      dir $(System.DefaultWorkingDirectory)
-      remove-item $(System.DefaultWorkingDirectory)/readme.md
-      remove-item $(System.DefaultWorkingDirectory)/azure-pipelines.yml
-      remove-item -recurse -force $(System.DefaultWorkingDirectory)/.git
-- task: ArchiveFiles@2
-  displayName: 'Archive $(System.DefaultWorkingDirectory)'
-  inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-    includeRootFolder: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build
